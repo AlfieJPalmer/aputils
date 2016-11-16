@@ -1,9 +1,11 @@
-﻿using System;
+﻿using SevenZip;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace aputils
 {
+
     public static class FileOps
     {
 
@@ -33,6 +35,8 @@ namespace aputils
                 }
                 writer?.Wait();
             }
+            if (reportedProgress == 100) { Console.WriteLine("\n\n\noutlier\n\n\n"); /*debug*/ }
+            progressCB(++reportedProgress); // final percent
         }
 
         public static void Move(this FileInfo src, FileInfo dst, Action<int> progressCB)
@@ -45,57 +49,32 @@ namespace aputils
         {
             src.Delete();               // Perform delete operation
         }
-        
-        public enum DecompressionMethod
+
+        public static void CompressionProgressCB(object sender, EventArgs e, Action<int> progressCB)
         {
-            ZIP,
-            GZIP,
-            RAR,
-            LZMA
+            progressCB(((ProgressEventArgs)e).PercentDone);
         }
 
-        private static string DecompressZIP(string input, string output)
+        private static string CompressLZMA(string input, string output, Action<int> progressCB)
         {
+            SevenZipBase.SetLibraryPath(@"C:\Users\APalmer\Downloads\7z1604-extra\7za.dll");
+            SevenZipCompressor compressor = new SevenZipCompressor();
+            compressor.CompressionMode = CompressionMode.Create;
+            compressor.TempFolderPath = Path.GetTempPath();
+            compressor.ArchiveFormat = OutArchiveFormat.SevenZip;
+            compressor.Compressing += (sender, e) => CompressionProgressCB(sender, e, progressCB);
+            compressor.CompressDirectory(input, output);
+
             return "";
         }
 
-        private static string DecompressGZIP(string input, string output)
-        {
-            return "";
-        }
-
-        private static string DecompressRAR(string input, string output)
-        {
-            return "";
-        }
-
-        private static string DecompressLZMA(string input, string output)
-        {
-             return "";
-        }
-
-        public static string DecompressFile(string input, string output, DecompressionMethod method)
+        public static string CompressFile(string input, string output, Action<int> progressCB, InArchiveFormat method = InArchiveFormat.Zip)
         {
             switch (method)
             {
-                case DecompressionMethod.ZIP:
+                case InArchiveFormat.Lzma:
                     {
-                        DecompressZIP(input, output);
-                        break;
-                    }
-                case DecompressionMethod.GZIP:
-                    {
-                        DecompressGZIP(input, output);
-                        break;
-                    }
-                case DecompressionMethod.RAR:
-                    {
-                        DecompressRAR(input, output);
-                        break;
-                    }
-                case DecompressionMethod.LZMA:
-                    {
-                        DecompressLZMA(input, output);
+                        CompressLZMA(input, output, progressCB);
                         break;
                     }
                 default:

@@ -17,5 +17,10 @@ namespace aputils
             else if (prntLg)
                 Console.WriteLine(str);
         }
+
+        public static void Lg(string str)
+        {
+            Console.WriteLine(str);
+        }
     }
 }

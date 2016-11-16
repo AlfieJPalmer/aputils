@@ -13,16 +13,30 @@
 
 // ==============================================================================================================================================================
 
-using System.IO;
-using System.Reflection;
+using System;
 
 namespace aputils
 {
     public class Core
     {
+        public static bool ConfirmExit { get; set; }
+
         public static void Initialise()
         {
-         
+            //SevenZip.SevenZipCompressor.SetLibraryPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"SevenZipSharp.dll"));
+            //if (IntPtr.Size == 8) //x64
+            //    SevenZip.SevenZipExtractor.SetLibraryPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"7z64.dll"));
+            //else //x86
+            //    SevenZip.SevenZipExtractor.SetLibraryPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"7z.dll"));
+        }
+
+        public static void Exit()
+        {
+            if (ConfirmExit)
+            {
+                Console.WriteLine("\nPress any key to exit...");
+                Console.ReadKey();
+            }
         }
     }
 }
