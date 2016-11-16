@@ -28,6 +28,9 @@ namespace aputils
             //    SevenZip.SevenZipExtractor.SetLibraryPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"7z64.dll"));
             //else //x86
             //    SevenZip.SevenZipExtractor.SetLibraryPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"7z.dll"));
+
+            Core.ConfirmExit = true;
+
         }
 
         public static void Exit()
@@ -36,6 +39,7 @@ namespace aputils
             {
                 Console.WriteLine("\nPress any key to exit...");
                 Console.ReadKey();
+                Environment.Exit(0);
             }
         }
     }
