@@ -2,7 +2,7 @@
 C# lib to aid creation of console applications
 
 Example Usage:
-```
+```c#
         static void Main(string[] args)
         {
             aputils.AppInfo.Render();
