@@ -27,5 +27,6 @@ namespace aputils
 
             Console.WriteLine(new string(headerChar, conW));
         }
+
     }
 }
