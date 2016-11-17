@@ -70,6 +70,12 @@ namespace aputils
 
         public static void CompressFile(string file, string archName, Action<int> progressCB, OutArchiveFormat fmt = OutArchiveFormat.GZip, CompressionLevel lvl = CompressionLevel.Normal, CompressionMethod mtd = CompressionMethod.Default)
         {
+            if(!File.Exists(file))
+            {
+                Log.Lg(file + " does not exist");
+                return;
+            }
+
             FileAttributes att = File.GetAttributes(file);
             if(att.HasFlag(FileAttributes.Directory))
             {
@@ -77,17 +83,41 @@ namespace aputils
                 return;
             }
 
-
+            if (archName == string.Empty) // change function to do this by default
+                archName = file;
 
             Compress(new string[] { file }, archName, progressCB, fmt, lvl, mtd, false);
         }
 
         public static void CompressFiles(string[] files, string archName, Action<int> progressCB, OutArchiveFormat fmt = OutArchiveFormat.GZip, CompressionLevel lvl = CompressionLevel.Normal, CompressionMethod mtd = CompressionMethod.Default)
         {
-            Compress(files, archName, progressCB, fmt, lvl, mtd, false);
+            foreach(string s in files)
+            {
+                if(!File.Exists(s)) // temp: convert to exception handling
+                {
+                    Log.Lg(s + " does not exist");
+                    return;
+                }
+            }
+
+            if (archName == string.Empty)
+                archName = files[0];
+
+            if (fmt == OutArchiveFormat.XZ || fmt == OutArchiveFormat.GZip || fmt == OutArchiveFormat.BZip2)
+            {
+                foreach (string s in files)
+                {
+                    archName = s;
+                    CompressFile(s, archName, progressCB, fmt, lvl, mtd);
+                }
+            }
+            else
+            {
+                Compress(files, archName, progressCB, fmt, lvl, mtd, false);
+            }
         }
 
-        public static void Compress(string[] input, string output, Action<int> progressCB, OutArchiveFormat fmt, CompressionLevel lvl, CompressionMethod mtd, bool isDir = true)
+        private static void Compress(string[] input, string output, Action<int> progressCB, OutArchiveFormat fmt, CompressionLevel lvl, CompressionMethod mtd, bool isDir = true)
         {
             SevenZipCompressor compressor = new SevenZipCompressor();
             compressor.CompressionMode = CompressionMode.Create;
@@ -109,15 +139,38 @@ namespace aputils
                 default: break;
             }
 
+            output = Utils.ConvertPath(output);
+            for (int i = 0; i < input.Length; ++i)
+                input[i] = Utils.ConvertPath(input[i]);
+
             if (isDir)
                 compressor.CompressDirectory(input[0], output + ext);
             else
-            {
-                output = Utils.ConvertPath(output);
-                for (int i = 0; i < input.Length; ++i)
-                    input[i] = Utils.ConvertPath(input[i]);
+                compressor.CompressFiles(output + ext, input); // support backslash path only
+        }
 
-                compressor.CompressFiles(output + ext, input); // CompressFiles only accepts paths\with\backslashes and complains/about/forward/slashes
+        //todo: private, more decompression functions
+        public static void Decompress(string[] input, string output, Action<int> progressCB, InArchiveFormat fmt, bool isDir = true, string password = "")
+        {
+            if (isDir)
+            {
+                if (output == string.Empty)
+                {
+                    output = input[0];
+
+                    int ind = output.LastIndexOf('.');
+                    output = ind == -1 ? output : output.Substring(0, ind);
+                }
+
+                string inputFile = Utils.ConvertPath(input[0]);
+                output = Utils.ConvertPath(output);
+
+                
+
+                using (var extractor = new SevenZipExtractor(inputFile))
+                {
+                    extractor.ExtractArchive(output);
+                }
             }
         }
 
