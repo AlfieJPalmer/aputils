@@ -48,8 +48,10 @@ namespace aputils
             count = 0;
             foreach (KeyValuePair<string, Action> s in funcs)
             {
-                ++count;
-                Console.WriteLine(" " + count + ". " + s.Key);
+                if(++count < 10)
+                    Console.WriteLine("  " + count + ". " + s.Key);
+                else
+                    Console.WriteLine(" " + count + ". " + s.Key);
             }
 
             // Prompt User Input
@@ -74,7 +76,7 @@ namespace aputils
             {
                 ++count;
                 if (selection == count)
-                    s.Value();
+                    s.Value?.Invoke();
             }
         }
     }

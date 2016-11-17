@@ -1,14 +1,13 @@
 ﻿using SevenZip;
 using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace aputils
 {
-
     public static class FileOps
     {
-
         public static void Copy(this FileInfo src, FileInfo dst, Action<int> progressCB)
         {
             const int bufferSize = 1048576;  // 1MB
@@ -50,9 +49,9 @@ namespace aputils
             src.Delete();               // Perform delete operation
         }
 
-        public static void CompressDir(string dir, string archName, Action<int> progressCB, OutArchiveFormat fmt = OutArchiveFormat.SevenZip, CompressionLevel lvl = CompressionLevel.Ultra, CompressionMethod mtd = CompressionMethod.Deflate )
+        public static void CompressDir(string dir, string archName, Action<int> progressCB, OutArchiveFormat fmt = OutArchiveFormat.SevenZip, CompressionLevel lvl = CompressionLevel.Ultra, CompressionMethod mtd = CompressionMethod.Deflate)
         {
-            if(fmt == OutArchiveFormat.XZ || fmt == OutArchiveFormat.GZip || fmt == OutArchiveFormat.BZip2)
+            if (fmt == OutArchiveFormat.XZ || fmt == OutArchiveFormat.GZip || fmt == OutArchiveFormat.BZip2)
             {
                 Log.Lg("Cannot compress a directory to format: " + fmt.ToString() + ", it can only be applied to files");
                 return;
@@ -70,14 +69,14 @@ namespace aputils
 
         public static void CompressFile(string file, string archName, Action<int> progressCB, OutArchiveFormat fmt = OutArchiveFormat.GZip, CompressionLevel lvl = CompressionLevel.Normal, CompressionMethod mtd = CompressionMethod.Default)
         {
-            if(!File.Exists(file))
+            if (!File.Exists(file))
             {
                 Log.Lg(file + " does not exist");
                 return;
             }
 
             FileAttributes att = File.GetAttributes(file);
-            if(att.HasFlag(FileAttributes.Directory))
+            if (att.HasFlag(FileAttributes.Directory))
             {
                 Log.Lg("Input file: " + file + " is a directory");
                 return;
@@ -91,9 +90,9 @@ namespace aputils
 
         public static void CompressFiles(string[] files, string archName, Action<int> progressCB, OutArchiveFormat fmt = OutArchiveFormat.GZip, CompressionLevel lvl = CompressionLevel.Normal, CompressionMethod mtd = CompressionMethod.Default)
         {
-            foreach(string s in files)
+            foreach (string s in files)
             {
-                if(!File.Exists(s)) // temp: convert to exception handling
+                if (!File.Exists(s)) // temp: convert to exception handling
                 {
                     Log.Lg(s + " does not exist");
                     return;
@@ -128,14 +127,14 @@ namespace aputils
             compressor.Compressing += (s, e) => progressCB(e.PercentDone); // Event only fires on LZMA
 
             string ext = string.Empty;
-            switch(fmt)
+            switch (fmt)
             {
                 case OutArchiveFormat.SevenZip: ext = ".7z"; break;
                 case OutArchiveFormat.Zip: ext = ".zip"; break;
                 case OutArchiveFormat.GZip: ext = ".gz"; break;
                 case OutArchiveFormat.BZip2: ext = ".bz2"; break;
                 case OutArchiveFormat.Tar: ext = ".tar"; break;
-                case OutArchiveFormat.XZ: ext = ".xz";  break;
+                case OutArchiveFormat.XZ: ext = ".xz"; break;
                 default: break;
             }
 
@@ -151,7 +150,7 @@ namespace aputils
 
         public static void Decompress(string file, Action<int> progressCB, string password = "")
         {
-            if(!File.Exists(file)) // if this is the only clause, rewrite to be inverted if(ex){}
+            if (!File.Exists(file)) // if this is the only clause, rewrite to be inverted if(ex){}
             {
                 Log.Lg(file + " does not exist");
                 return;
@@ -160,13 +159,12 @@ namespace aputils
             int ind = file.LastIndexOf('.');
             string output = ind == -1 ? file : file.Substring(0, ind); // strip extention
             string ext = Path.GetExtension(file);
-            
-            if(ext.ToLower() == ".gz" || ext.ToLower() == ".bz2" || ext.ToLower() == "xz")
+
+            if (ext.ToLower() == ".gz" || ext.ToLower() == ".bz2" || ext.ToLower() == "xz")
                 Decompress(new string[] { file }, output, progressCB, password, false); // extract to file
             else
                 Decompress(new string[] { file }, output, progressCB, password, true); // extract to dir
         }
-
 
         // add pw support
         public static void Decompress(string[] files, Action<int> progressCB, string[] passwords = null)
@@ -176,7 +174,6 @@ namespace aputils
             foreach (string s in files)
                 Decompress(s, progressCB);
         }
-            
 
         // .gz fires two progress events? mb. extract & create
         private static void Decompress(string[] input, string output, Action<int> progressCB, string password = "", bool isDir = true)
@@ -191,8 +188,6 @@ namespace aputils
 
             string inputFile = Utils.ConvertPath(input[0]);
             output = Utils.ConvertPath(output);
-
-
 
             if (isDir)
             {
@@ -210,9 +205,45 @@ namespace aputils
                     extractor.ExtractFile(0, File.Create(output));
                 }
             }
+        }
+
+
+        // -----------
+
+        public static void ReadFirstBytes(string path, long bytes)
+        {
+            using (var reader = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                long fileLength = new FileInfo(path).Length;
+                if (fileLength < bytes)
+                    bytes = fileLength;
+
+                byte[] byteArr = new byte[bytes];
+
+                reader.Read(byteArr, 0, (int)bytes);
+                reader.Close();
+
+                Console.WriteLine(Encoding.Default.GetString(byteArr));
+            }
 
 
         }
+
+        public static void ReadLastBytes(string path, long bytes)
+        {
+            using (var reader = new StreamReader(path))
+            {
+                if (reader.BaseStream.Length < bytes)
+                    bytes = reader.BaseStream.Length;
+                
+                reader.BaseStream.Seek(-bytes, SeekOrigin.End);
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                    Console.WriteLine(line);
+                
+            }
+        }
+
 
     }
 }

@@ -14,8 +14,10 @@
 // ==============================================================================================================================================================
 
 using System;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace aputils
 {
@@ -64,6 +66,49 @@ namespace aputils
         public static void ClearConsole()
         {
             Console.Clear();
+        }
+
+        public static void SetTitle(string str)
+        {
+            Console.Title = str;
+        }
+
+        // Stuff from kernel32 dll
+        [DllImport("kernel32")]
+        public static extern bool SetConsoleIcon(IntPtr hIcon);
+
+        public static bool SetConsoleIcon(Icon icon)
+        {
+            return SetConsoleIcon(icon.Handle);
+        }
+
+        // Default console is not a rich text interface,
+        // Read possible fonts as a ConsoleFontIndex from 
+        // the ConsoleFontTable, SIZE: { X, Y }
+        // 0: X=100, Y=50
+        // 1: X=66, Y=37
+        // 2: X=50, Y=37
+        // 3: X=25, Y=37
+        // 4: X=80, Y=25
+        // 5: X=57, Y=25
+        // 6: X=50, Y=25
+        // 7: X=25, Y=25
+        // 8: X=33, Y=18
+        // 9: X=40, Y=16
+        [DllImport("kernel32")]
+        private extern static bool SetConsoleFont(IntPtr hOutput, uint index);
+
+        private enum StdHandle
+        {
+            OutputHandle = -11
+        }
+
+        [DllImport("kernel32")]
+        private static extern IntPtr GetStdHandle(StdHandle index);
+
+        public static bool SetConsoleFont(uint index)
+        {
+            return SetConsoleFont(GetStdHandle(StdHandle.OutputHandle), index);
         }
     }
 }
