@@ -149,29 +149,69 @@ namespace aputils
                 compressor.CompressFiles(output + ext, input); // support backslash path only
         }
 
-        //todo: private, more decompression functions
-        public static void Decompress(string[] input, string output, Action<int> progressCB, InArchiveFormat fmt, bool isDir = true, string password = "")
+        public static void Decompress(string file, Action<int> progressCB, string password = "")
         {
+            if(!File.Exists(file)) // if this is the only clause, rewrite to be inverted if(ex){}
+            {
+                Log.Lg(file + " does not exist");
+                return;
+            }
+
+            int ind = file.LastIndexOf('.');
+            string output = ind == -1 ? file : file.Substring(0, ind); // strip extention
+            string ext = Path.GetExtension(file);
+            
+            if(ext.ToLower() == ".gz" || ext.ToLower() == ".bz2" || ext.ToLower() == "xz")
+                Decompress(new string[] { file }, output, progressCB, password, false); // extract to file
+            else
+                Decompress(new string[] { file }, output, progressCB, password, true); // extract to dir
+        }
+
+
+        // add pw support
+        public static void Decompress(string[] files, Action<int> progressCB, string[] passwords = null)
+        {
+            //passwords = passwords ?? new string[files.Length];
+
+            foreach (string s in files)
+                Decompress(s, progressCB);
+        }
+            
+
+        // .gz fires two progress events? mb. extract & create
+        private static void Decompress(string[] input, string output, Action<int> progressCB, string password = "", bool isDir = true)
+        {
+            if (output == string.Empty)
+            {
+                output = input[0];
+
+                int ind = output.LastIndexOf('.');
+                output = ind == -1 ? output : output.Substring(0, ind); // strip extention
+            }
+
+            string inputFile = Utils.ConvertPath(input[0]);
+            output = Utils.ConvertPath(output);
+
+
+
             if (isDir)
             {
-                if (output == string.Empty)
-                {
-                    output = input[0];
-
-                    int ind = output.LastIndexOf('.');
-                    output = ind == -1 ? output : output.Substring(0, ind);
-                }
-
-                string inputFile = Utils.ConvertPath(input[0]);
-                output = Utils.ConvertPath(output);
-
-                
-
                 using (var extractor = new SevenZipExtractor(inputFile))
                 {
+                    extractor.Extracting += (s, e) => progressCB(e.PercentDone); // Event only fires on LZMA
                     extractor.ExtractArchive(output);
                 }
             }
+            else
+            {
+                using (var extractor = new SevenZipExtractor(inputFile))
+                {
+                    extractor.Extracting += (s, e) => progressCB(e.PercentDone); // Event only fires on LZMA
+                    extractor.ExtractFile(0, File.Create(output));
+                }
+            }
+
+
         }
 
     }
