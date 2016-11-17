@@ -11,7 +11,7 @@ namespace aputils
 
         public static void Copy(this FileInfo src, FileInfo dst, Action<int> progressCB)
         {
-            const int bufferSize = 1024 * 1024;  // 1MB
+            const int bufferSize = 1048576;  // 1MB
             byte[] buffer = new byte[bufferSize], buffer2 = new byte[bufferSize];
             bool swap = false;
             int progress = 0, reportedProgress = 0, read = 0;
@@ -23,9 +23,9 @@ namespace aputils
             using (var dest = dst.OpenWrite())
             {
                 dest.SetLength(source.Length);
-                for (long size = 0; size < len; size += read)
+                for (long sz = 0; sz < len; sz += read)
                 {
-                    if ((progress = ((int)((size / flen) * 100))) != reportedProgress)
+                    if ((progress = ((int)((sz / flen) * 100))) != reportedProgress)
                         progressCB(reportedProgress = progress);
 
                     read = source.Read(swap ? buffer : buffer2, 0, bufferSize);
@@ -50,20 +50,76 @@ namespace aputils
             src.Delete();               // Perform delete operation
         }
 
-        public static void Compress(string[] input, string output, Action<int> progressCB, bool isDir = true, OutArchiveFormat format = OutArchiveFormat.SevenZip, CompressionMethod method = CompressionMethod.Deflate, CompressionLevel level = CompressionLevel.Ultra)
+        public static void CompressDir(string dir, string archName, Action<int> progressCB, OutArchiveFormat fmt = OutArchiveFormat.SevenZip, CompressionLevel lvl = CompressionLevel.Ultra, CompressionMethod mtd = CompressionMethod.Deflate )
+        {
+            if(fmt == OutArchiveFormat.XZ || fmt == OutArchiveFormat.GZip || fmt == OutArchiveFormat.BZip2)
+            {
+                Log.Lg("Cannot compress a directory to format: " + fmt.ToString() + ", it can only be applied to files");
+                return;
+            }
+
+            FileAttributes att = File.GetAttributes(dir);
+            if (!att.HasFlag(FileAttributes.Directory))
+            {
+                Log.Lg("Input file: " + dir + " is not a directory");
+                return;
+            }
+
+            Compress(new string[] { dir }, archName, progressCB, fmt, lvl, mtd, true);
+        }
+
+        public static void CompressFile(string file, string archName, Action<int> progressCB, OutArchiveFormat fmt = OutArchiveFormat.GZip, CompressionLevel lvl = CompressionLevel.Normal, CompressionMethod mtd = CompressionMethod.Default)
+        {
+            FileAttributes att = File.GetAttributes(file);
+            if(att.HasFlag(FileAttributes.Directory))
+            {
+                Log.Lg("Input file: " + file + " is a directory");
+                return;
+            }
+
+
+
+            Compress(new string[] { file }, archName, progressCB, fmt, lvl, mtd, false);
+        }
+
+        public static void CompressFiles(string[] files, string archName, Action<int> progressCB, OutArchiveFormat fmt = OutArchiveFormat.GZip, CompressionLevel lvl = CompressionLevel.Normal, CompressionMethod mtd = CompressionMethod.Default)
+        {
+            Compress(files, archName, progressCB, fmt, lvl, mtd, false);
+        }
+
+        public static void Compress(string[] input, string output, Action<int> progressCB, OutArchiveFormat fmt, CompressionLevel lvl, CompressionMethod mtd, bool isDir = true)
         {
             SevenZipCompressor compressor = new SevenZipCompressor();
             compressor.CompressionMode = CompressionMode.Create;
             compressor.TempFolderPath = Path.GetTempPath();
-            compressor.CompressionLevel = level;
-            compressor.ArchiveFormat = format;
-            compressor.CompressionMethod = method;
-            compressor.Compressing += (s, e) => progressCB(e.PercentDone);
+            compressor.CompressionLevel = lvl;
+            compressor.ArchiveFormat = fmt;
+            compressor.CompressionMethod = mtd;
+            compressor.Compressing += (s, e) => progressCB(e.PercentDone); // Event only fires on LZMA
+
+            string ext = string.Empty;
+            switch(fmt)
+            {
+                case OutArchiveFormat.SevenZip: ext = ".7z"; break;
+                case OutArchiveFormat.Zip: ext = ".zip"; break;
+                case OutArchiveFormat.GZip: ext = ".gz"; break;
+                case OutArchiveFormat.BZip2: ext = ".bz2"; break;
+                case OutArchiveFormat.Tar: ext = ".tar"; break;
+                case OutArchiveFormat.XZ: ext = ".xz";  break;
+                default: break;
+            }
 
             if (isDir)
-                compressor.CompressDirectory(input[0], output);
+                compressor.CompressDirectory(input[0], output + ext);
             else
-                compressor.CompressFiles(output, input);
+            {
+                output = Utils.ConvertPath(output);
+                for (int i = 0; i < input.Length; ++i)
+                    input[i] = Utils.ConvertPath(input[i]);
+
+                compressor.CompressFiles(output + ext, input); // CompressFiles only accepts paths\with\backslashes and complains/about/forward/slashes
+            }
         }
+
     }
 }
