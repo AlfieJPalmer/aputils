@@ -50,43 +50,20 @@ namespace aputils
             src.Delete();               // Perform delete operation
         }
 
-        public static void CompressionProgressCB(object sender, EventArgs e, Action<int> progressCB)
+        public static void Compress(string[] input, string output, Action<int> progressCB, bool isDir = true, OutArchiveFormat format = OutArchiveFormat.SevenZip, CompressionMethod method = CompressionMethod.Deflate, CompressionLevel level = CompressionLevel.Ultra)
         {
-            progressCB(((ProgressEventArgs)e).PercentDone);
-        }
-
-        private static string CompressLZMA(string input, string output, Action<int> progressCB)
-        {
-            SevenZipBase.SetLibraryPath(@"C:\Users\APalmer\Downloads\7z1604-extra\7za.dll");
             SevenZipCompressor compressor = new SevenZipCompressor();
             compressor.CompressionMode = CompressionMode.Create;
             compressor.TempFolderPath = Path.GetTempPath();
-            compressor.ArchiveFormat = OutArchiveFormat.SevenZip;
-            compressor.Compressing += (sender, e) => CompressionProgressCB(sender, e, progressCB);
-            compressor.CompressDirectory(input, output);
+            compressor.CompressionLevel = level;
+            compressor.ArchiveFormat = format;
+            compressor.CompressionMethod = method;
+            compressor.Compressing += (s, e) => progressCB(e.PercentDone);
 
-            return "";
+            if (isDir)
+                compressor.CompressDirectory(input[0], output);
+            else
+                compressor.CompressFiles(output, input);
         }
-
-        public static string CompressFile(string input, string output, Action<int> progressCB, InArchiveFormat method = InArchiveFormat.Zip)
-        {
-            switch (method)
-            {
-                case InArchiveFormat.Lzma:
-                    {
-                        CompressLZMA(input, output, progressCB);
-                        break;
-                    }
-                default:
-                    {
-                        // invalid decomp algorithm
-                        break;
-                    }
-            }
-
-
-            return "";
-        }
-
     }
 }
