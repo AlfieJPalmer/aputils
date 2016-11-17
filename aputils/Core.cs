@@ -14,6 +14,8 @@
 // ==============================================================================================================================================================
 
 using System;
+using System.IO;
+using System.Reflection;
 
 namespace aputils
 {
@@ -23,14 +25,13 @@ namespace aputils
 
         public static void Initialise()
         {
-            //SevenZip.SevenZipCompressor.SetLibraryPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"SevenZipSharp.dll"));
-            //if (IntPtr.Size == 8) //x64
-            //    SevenZip.SevenZipExtractor.SetLibraryPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"7z64.dll"));
-            //else //x86
-            //    SevenZip.SevenZipExtractor.SetLibraryPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"7z.dll"));
+            SevenZip.SevenZipBase.SetLibraryPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"SevenZipSharp.dll"));
+            if (IntPtr.Size == 8) //x64
+                SevenZip.SevenZipBase.SetLibraryPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"7z_x64.dll"));
+            else //x86
+                SevenZip.SevenZipBase.SetLibraryPath(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"7z_x86.dll"));
 
-            Core.ConfirmExit = true;
-
+            ConfirmExit = true;
         }
 
         public static void Exit()
