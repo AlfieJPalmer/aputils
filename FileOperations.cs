@@ -167,7 +167,6 @@ namespace aputils
                 Decompress(new string[] { file }, output, progressCB, password, true); // extract to dir
         }
 
-
         // add pw support
         public static void Decompress(string[] files, Action<int> progressCB, string[] passwords = null)
         {
@@ -177,7 +176,6 @@ namespace aputils
                 Decompress(s, progressCB);
         }
             
-
         // .gz fires two progress events? mb. extract & create
         private static void Decompress(string[] input, string output, Action<int> progressCB, string password = "", bool isDir = true)
         {
@@ -191,8 +189,6 @@ namespace aputils
 
             string inputFile = Utils.ConvertPath(input[0]);
             output = Utils.ConvertPath(output);
-
-
 
             if (isDir)
             {
@@ -210,8 +206,6 @@ namespace aputils
                     extractor.ExtractFile(0, File.Create(output));
                 }
             }
-
-
         }
 
     }

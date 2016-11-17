@@ -14,8 +14,10 @@
 // ==============================================================================================================================================================
 
 using System;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace aputils
 {
@@ -64,6 +66,31 @@ namespace aputils
         public static void ClearConsole()
         {
             Console.Clear();
+        }
+
+        // from kernel32 dll
+        [DllImport("kernel32")]
+        public static extern bool SetConsoleIcon(IntPtr hIcon);
+
+        public static bool SetConsoleIcon(Icon icon)
+        {
+            return SetConsoleIcon(icon.Handle);
+        }
+
+        [DllImport("kernel32")]
+        private extern static bool SetConsoleFont(IntPtr hOutput, uint index);
+
+        private enum StdHandle
+        {
+            OutputHandle = -11
+        }
+
+        [DllImport("kernel32")]
+        private static extern IntPtr GetStdHandle(StdHandle index);
+
+        public static bool SetConsoleFont(uint index)
+        {
+            return SetConsoleFont(GetStdHandle(StdHandle.OutputHandle), index);
         }
     }
 }

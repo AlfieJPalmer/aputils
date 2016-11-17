@@ -8,7 +8,6 @@ namespace aputils
 {
     class Utils
     {
-
         public static string ConvertPath(string input)
         {
             if (input.Contains("/"))
@@ -32,6 +31,5 @@ namespace aputils
             Console.CursorLeft = cursorX;
             Console.CursorTop = cursorY;
         }
-
     }
 }
