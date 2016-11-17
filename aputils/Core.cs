@@ -43,5 +43,27 @@ namespace aputils
                 Environment.Exit(0);
             }
         }
+
+        public static void SetTextForegroundColour(ConsoleColor c)
+        {
+            Console.ForegroundColor = c;
+        }
+
+        public static void SetTextBackgroundColor(ConsoleColor c)
+        {
+            Console.BackgroundColor = c;
+        }
+
+        // Call before writing anything to screen
+        public static void SetConsoleBackgroundColour(ConsoleColor c)
+        {
+            Console.BackgroundColor = c;
+            ClearConsole();
+        }
+
+        public static void ClearConsole()
+        {
+            Console.Clear();
+        }
     }
 }
