@@ -1,5 +1,5 @@
 # aputils
-C# lib to aid creation of console applications
+C# lib to aid creation of Windows console applications
 
 Example Usage:
 ```c#
