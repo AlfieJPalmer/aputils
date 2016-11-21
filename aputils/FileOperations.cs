@@ -8,6 +8,12 @@ namespace aputils
 {
     public static class FileOps
     {
+        public enum FileEncoding
+        {
+            ANSI,
+            UNICODE
+        }
+
         public static void Copy(this FileInfo src, FileInfo dst, Action<int> progressCB)
         {
             const int bufferSize = 1048576;  // 1MB
@@ -212,9 +218,16 @@ namespace aputils
             System.Diagnostics.Process.Start(file, args);
         }
 
-        public static void OpenAsText(string file)
+        public static void OpenAsText(string file, FileEncoding enc = FileEncoding.ANSI)
         {
-            System.Diagnostics.Process.Start("notepad.exe", "/A " + file);
+            string paramSwitch = string.Empty;
+
+            if (enc == FileEncoding.ANSI)
+                paramSwitch = "/A ";
+            else if (enc == FileEncoding.UNICODE)
+                paramSwitch = "/W ";
+
+            System.Diagnostics.Process.Start("notepad.exe", paramSwitch + file);
         }
     }
 }
