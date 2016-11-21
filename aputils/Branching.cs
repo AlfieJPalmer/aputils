@@ -67,7 +67,7 @@ namespace aputils
                     Utils.ClearInvalidSelection(curLeft, curTop);
                 
                 string str = Console.ReadLine();
-                Int32.TryParse(str, out selection);
+                int.TryParse(str, out selection);
                 invInputFlag = true;
             } while (selection == 0 || selection > funcs.Count);
 
