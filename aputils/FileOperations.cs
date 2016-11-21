@@ -207,43 +207,14 @@ namespace aputils
             }
         }
 
-
-        // -----------
-
-        public static void ReadFirstBytes(string path, long bytes)
+        public static void Execute(string file, string args = "")
         {
-            using (var reader = new FileStream(path, FileMode.Open, FileAccess.Read))
-            {
-                long fileLength = new FileInfo(path).Length;
-                if (fileLength < bytes)
-                    bytes = fileLength;
-
-                byte[] byteArr = new byte[bytes];
-
-                reader.Read(byteArr, 0, (int)bytes);
-                reader.Close();
-
-                Console.WriteLine(Encoding.Default.GetString(byteArr));
-            }
-
-
+            System.Diagnostics.Process.Start(file, args);
         }
 
-        public static void ReadLastBytes(string path, long bytes)
+        public static void OpenAsText(string file)
         {
-            using (var reader = new StreamReader(path))
-            {
-                if (reader.BaseStream.Length < bytes)
-                    bytes = reader.BaseStream.Length;
-                
-                reader.BaseStream.Seek(-bytes, SeekOrigin.End);
-                string line;
-                while ((line = reader.ReadLine()) != null)
-                    Console.WriteLine(line);
-                
-            }
+            System.Diagnostics.Process.Start("notepad.exe", "/A " + file);
         }
-
-
     }
 }
