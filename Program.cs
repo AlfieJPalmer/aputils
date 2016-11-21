@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Drawing;
 using aputils;
+using System.Threading;
 
 namespace TestApp
 {
@@ -16,8 +17,6 @@ namespace TestApp
         {
             Core.Initialise();
 
-            FileOps.OpenAsText("C:\\Users\\APalmer\\Downloads\\test.dat");
-           
             //FileOps.CompressDir(@"C:/Temp/Infragistics2013.2", @"C:/Temp/Test3", x => TextProgressBar.Render("Compress()", x));
             //FileOps.CompressFile("C:/Temp/equity_euro.px", "C:/Temp/Test2", x => TextProgressBar.Render("Cmp()", x), SevenZip.OutArchiveFormat.SevenZip);
             //FileOps.CompressFiles(new string[] { @"C:/Temp/equity_euro.px", @"C:/Temp/equity_euro_reinterpret.px" }, @"C:/Temp/Test", x => TextProgressBar.Render("CmpFls()", x), SevenZip.OutArchiveFormat.SevenZip);
@@ -41,12 +40,12 @@ namespace TestApp
             });
 
             if (Branching.Question("Perform Copy?")){
-                FileOps.Copy(new FileInfo(@"C:/Temp/equity_euro.px"), new FileInfo(@"C:/Temp/test.px"), x => TextProgressBar.Render("Copy()", x, 100, 50, '#', '-', @"|/-\", ConsoleColor.DarkGray, ConsoleColor.DarkRed, ConsoleColor.Red, ConsoleColor.Black, ConsoleColor.Black));
+                FileOps.Copy(new FileInfo(@"C:/Temp/file.txt"), new FileInfo(@"C:/Temp/test.txt"), x => TextProgressBar.Render("Copy()", x, 100, 50, '#', '-', @"|/-\", ConsoleColor.DarkGray, ConsoleColor.DarkRed, ConsoleColor.Red, ConsoleColor.Black, ConsoleColor.Black));
             }
             else { Log.Lg("Copy Cancelled"); Core.Exit(); }
 
             if(Branching.Question("Perform Decompression?")){
-                FileOps.CompressDir(@"C:/Temp/Infragistics2013.2", @"C:/Temp/test", x => TextProgressBar.Render("Compress()", x)); // fix ext, cmprs dir
+                FileOps.CompressDir(@"C:/Temp/folder", @"C:/Temp/dir", x => TextProgressBar.Render("Compress()", x)); // fix ext, cmprs dir
             }
             else { Log.Lg("Decompression Cancelled"); }
 
