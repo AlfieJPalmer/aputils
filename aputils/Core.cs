@@ -56,7 +56,7 @@ namespace aputils
             Console.BackgroundColor = c;
         }
 
-        // Call before writing anything to screen
+        // Set background colour of console (will clear screen)
         public static void SetConsoleBackgroundColour(ConsoleColor c)
         {
             Console.BackgroundColor = c;
