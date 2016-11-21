@@ -3,7 +3,6 @@ using System.IO;
 using System.Collections.Generic;
 using System.Drawing;
 using aputils;
-using System.Threading;
 
 namespace TestApp
 {
@@ -16,22 +15,12 @@ namespace TestApp
         static void Main(string[] args)
         {
             Core.Initialise();
-
-            //FileOps.CompressDir(@"C:/Temp/Infragistics2013.2", @"C:/Temp/Test3", x => TextProgressBar.Render("Compress()", x));
-            //FileOps.CompressFile("C:/Temp/equity_euro.px", "C:/Temp/Test2", x => TextProgressBar.Render("Cmp()", x), SevenZip.OutArchiveFormat.SevenZip);
-            //FileOps.CompressFiles(new string[] { @"C:/Temp/equity_euro.px", @"C:/Temp/equity_euro_reinterpret.px" }, @"C:/Temp/Test", x => TextProgressBar.Render("CmpFls()", x), SevenZip.OutArchiveFormat.SevenZip);
-
-            //FileOps.Decompress(new string[] { @"C:/Temp/equity_euro.7z" }, @"C:/Temp/Test4", x => TextProgressBar.Render("Decompress()", x));
-            //FileOps.Decompress(@"C:/Temp/test2.zip", x => TextProgressBar.Render("Dmprs()", x));
-            //FileOps.Decompress(new string[] { @"C:/Temp/test.px.gz", @"C:/Temp/test2.px.gz"}, x => TextProgressBar.Render("Dmprs()", x));
-
             Core.SetTitle("TestApp");
             Core.SetConsoleBackgroundColour(ConsoleColor.Black);
             Core.SetConsoleFont(5);
             Core.SetConsoleIcon(SystemIcons.Exclamation);
 
             AppInfo.Render();
-
             Branching.MultiChoice(new Dictionary<string, Action>()
             {
                 { "Operation1", SampleOperation1 },
@@ -45,10 +34,9 @@ namespace TestApp
             else { Log.Lg("Copy Cancelled"); Core.Exit(); }
 
             if(Branching.Question("Perform Decompression?")){
-                FileOps.CompressDir(@"C:/Temp/folder", @"C:/Temp/dir", x => TextProgressBar.Render("Compress()", x)); // fix ext, cmprs dir
+                FileOps.CompressDir(@"C:/Temp/folder", @"C:/Temp/dir", x => TextProgressBar.Render("Compress()", x));
             }
             else { Log.Lg("Decompression Cancelled"); }
-
             Core.Exit();
         }
     }
