@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 namespace aputils
 {
     class Utils
-    {
+    {          
+        // Converts C:/Sample/Path to C:\Sample\Path
+        // and      C:\Sample\Path to C:/Sample/Path
         public static string ConvertPath(string input)
         {
             if (input.Contains("/"))
