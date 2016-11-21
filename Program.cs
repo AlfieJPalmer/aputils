@@ -16,12 +16,8 @@ namespace TestApp
         {
             Core.Initialise();
 
-            FileOps.ReadFirstBytes(@"C:\Temp\equity_euro.px", 4096);
-            Console.WriteLine("\n\n---------------------------------------\n\n");
-            FileOps.ReadLastBytes(@"C:\Temp\equity_euro.px", 4096);
-            Console.ReadKey();
-            
-            
+            FileOps.OpenAsText("C:\\Users\\APalmer\\Downloads\\test.dat");
+           
             //FileOps.CompressDir(@"C:/Temp/Infragistics2013.2", @"C:/Temp/Test3", x => TextProgressBar.Render("Compress()", x));
             //FileOps.CompressFile("C:/Temp/equity_euro.px", "C:/Temp/Test2", x => TextProgressBar.Render("Cmp()", x), SevenZip.OutArchiveFormat.SevenZip);
             //FileOps.CompressFiles(new string[] { @"C:/Temp/equity_euro.px", @"C:/Temp/equity_euro_reinterpret.px" }, @"C:/Temp/Test", x => TextProgressBar.Render("CmpFls()", x), SevenZip.OutArchiveFormat.SevenZip);
