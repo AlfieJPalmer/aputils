@@ -64,6 +64,19 @@ namespace testproj
             bool ret;
             return bool.TryParse(o.ToTrimString(), out ret) && ret;
         }
+        
+        public static DateTime ToDateTime(this object obj)
+        {
+            if (obj is DateTime)
+                return (DateTime)obj;
+
+            double objDbl;
+            if (double.TryParse(obj.ToString(), out objDbl))
+                return DateTime.FromOADate(objDbl);
+            
+            DateTime ret;
+            return DateTime.TryParse(obj.ToTrimString(), out ret) ? ret : DateTime.MinValue;
+        }
 
     }
 
