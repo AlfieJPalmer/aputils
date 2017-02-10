@@ -65,17 +65,27 @@ namespace testproj
             return bool.TryParse(o.ToTrimString(), out ret) && ret;
         }
         
-        public static DateTime ToDateTime(this object obj)
+        public static DateTime ToDateTime(this object o)
         {
-            if (obj is DateTime)
-                return (DateTime)obj;
+            if (o is DateTime)
+                return (DateTime)o;
 
             double objDbl;
-            if (double.TryParse(obj.ToString(), out objDbl))
+            if (double.TryParse(o.ToString(), out objDbl))
                 return DateTime.FromOADate(objDbl);
             
             DateTime ret;
-            return DateTime.TryParse(obj.ToTrimString(), out ret) ? ret : DateTime.MinValue;
+            return DateTime.TryParse(o.ToTrimString(), out ret) ? ret : DateTime.MinValue;
+        }
+
+        public static bool IsValue(this object o, object v)
+        {
+            return o.Equals(v);
+        }
+
+        public static bool IsValueCI(this object o, object v)
+        {
+            return IsValue(o.ToTrimString().ToLower(), v.ToTrimString().ToLower());
         }
 
     }
